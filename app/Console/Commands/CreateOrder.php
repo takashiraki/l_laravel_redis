@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Jobs\OrderCreatedJob;
 use App\Jobs\SendOrderMailJob;
 use Illuminate\Console\Command;
 
@@ -29,6 +30,7 @@ class CreateOrder extends Command
     public function handle()
     {
         $id = uniqid('order_', true);
-        SendOrderMailJob::dispatch($id);
+        SendOrderMailJob::dispatch($id)->onQueue("mail");
+        OrderCreatedJob::dispatch($id)->onQueue("order");
     }
 }
