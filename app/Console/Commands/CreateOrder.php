@@ -29,8 +29,10 @@ class CreateOrder extends Command
      */
     public function handle()
     {
-        $id = uniqid('order_', true);
-        SendOrderMailJob::dispatch($id)->onQueue("mail");
-        OrderCreatedJob::dispatch($id)->onQueue("order");
+        for ($i=0; $i < 500; $i++) { 
+            $id = uniqid('order_', true);
+            SendOrderMailJob::dispatch($id)->onQueue("mail");
+            OrderCreatedJob::dispatch($id)->onQueue("order");
+        }
     }
 }
