@@ -29,20 +29,22 @@ class RedisStreamPush extends Command
      */
     public function handle()
     {
-        $prefix = 'order_' . CarbonImmutable::now()->timezone('Asia/Tokyo')->format('YmdHis') . '_';
+        for ($i = 0; $i < 100; $i++) {
+            $prefix = 'order_' . CarbonImmutable::now()->timezone('Asia/Tokyo')->format('YmdHis') . '_';
 
-        $event = [
-            'event' => 'OrderCreated',
-            'order_id' => uniqid($prefix, true),
-            'occurred_at' => CarbonImmutable::now()->toIso8601String(),
-        ];
+            $event = [
+                'event' => 'OrderCreated',
+                'order_id' => uniqid($prefix, true),
+                'occurred_at' => CarbonImmutable::now()->toIso8601String(),
+            ];
 
-        Redis::xadd(
-            'order.events',
-            '*',
-            $event
-        );
+            Redis::xadd(
+                'order.events',
+                '*',
+                $event
+            );
         
-        $this->info('Pushed event to Redis stream: ' . json_encode($event));
+            $this->info('Pushed event to Redis stream: ' . json_encode($event));
+        }
     }
 }
