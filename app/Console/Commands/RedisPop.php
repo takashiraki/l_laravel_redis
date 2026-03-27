@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Redis;
+use Packages\Commons\Gateways\GatewayInterface;
 
 class RedisPop extends Command
 {
@@ -26,18 +27,21 @@ class RedisPop extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(
+        GatewayInterface $gateway
+    )
     {
         $this->info('LPopRedisWorker started.');
 
         while (true) {
-            $result = Redis::blpop('order.queue', 0);
+            $result = $gateway->subscribe('order.queue', 0);
 
             if (! $result) {
+                $this->info('No more items in the queue. Waiting for new items...');
                 continue;
             }
 
-            $payload = json_decode($result[1], true);
+            $payload = json_decode($result, true);
             $orderId = $payload['order_id'] . PHP_EOL;
 
             // 実際の処理（例：メール送信・DB保存など）
